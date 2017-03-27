@@ -17,7 +17,7 @@ with open(args.inputSCP) as f:
 
 mlfEntry = ""
 mlfOut = ""
-mlfIn = False
+mlfIn = True
 with open(args.inputMLF) as f:
      for mlfLine in f:
          if mlfLine.startswith('"'):
