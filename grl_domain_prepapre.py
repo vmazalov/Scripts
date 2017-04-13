@@ -13,14 +13,13 @@ def adaptScp(scpFile):
             if key.endswith(".mfc"):
                 key = key[:-4]
             newKey = str(counter)
-            key.replace('/', '\\');
             result[key] = newKey
             counter += 1
     return result
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Extracts domain labels from key-value pair file, phone list file and the MLF file")
-    parser.add_argument('--inputScpFile', help='Input scp file.', required=True)
+    parser.add_argument('--inputScpFile', help='Input scp file with txt uttrs IDs.', required=True)
     parser.add_argument('--outputDomainLabelFile', help='Input scp file.', required=True)
     args = parser.parse_args()
 
@@ -45,4 +44,4 @@ if __name__ == "__main__":
 
                 label = "1" if key.endswith("_n") else "0"
                 for i in range(int(frameBound[0]), int(frameBound[1])):
-                   outputFile.write(keys[key] + " |l " + label)
+                   outputFile.write(keys[key] + " |l " + label + ":1\n")
