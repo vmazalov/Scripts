@@ -4,9 +4,9 @@ import argparse
 
 
 parser = argparse.ArgumentParser(description="Read matrix from a text file, round its values and print to output file")
-parser.add_argument('--inputFile', help='Input file.', required=True)
-parser.add_argument('--skipLines', help='Number of lines to skip from the top of the file', required=False)
-parser.add_argument('--outputFile', help='Output file.', required=True)
+parser.add_argument('--folderOriginalWavs', help='', required=True)
+parser.add_argument('--jsonFile', help='', required=False)
+parser.add_argument('--outputFolder', help='Output file.', required=True)
 args = parser.parse_args()
 
 if not os.path.exists(args.inputFile):

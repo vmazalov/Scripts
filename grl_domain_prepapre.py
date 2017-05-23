@@ -7,7 +7,9 @@ def adaptScp(scpFile):
     with open(scpFile) as f:
         for line in f:
             splitted = line.split("=")
+            #print(line)
             if len(splitted) != 2:
+                print(counter)
                 raise Exception("Invalid input '%s', line with invalid format '%s'" % (scpFile, line))
             key = splitted[0].strip()
             if key.endswith(".mfc"):
@@ -43,5 +45,6 @@ if __name__ == "__main__":
                     raise Exception("Invalid frame bound '%s', line with invalid format '%s'" % (scpFile, line))
 
                 label = "1" if key.endswith("_n") else "0"
-                for i in range(int(frameBound[0]), int(frameBound[1])):
+                k = keys[key]
+                for i in range(int(frameBound[0]), int(frameBound[1]) + 1):
                    outputFile.write(keys[key] + " |l " + label + ":1\n")
