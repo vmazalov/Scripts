@@ -45,68 +45,15 @@ features, labels = generate_random_data_sample(mysamplesize, input_dim, num_outp
 
 feature =  C.sequence.input(input_dim, np.float32)
 
-# Define a dictionary to store the model parameters
-mydict = {}
-
-def linear_layer(input_var, output_dim):
-
-    """
-
-    :rtype: object
-    """
-    input_dim = input_var.shape[0]
-    weight_param = C.parameter(shape=(input_dim, output_dim))
-    bias_param = C.parameter(shape=(output_dim))
-
-    mydict['w'], mydict['b'] = weight_param, bias_param
-
-    return C.times(input_var, weight_param) + bias_param
-
-
-def LSTM_func(input_dim, out_dim):
-    #print (input_dim, out_dim)
-    W = C.parameter(shape=(input_dim, out_dim), init=C.glorot_uniform())
-    B = C.parameter(shape=(out_dim), init=0)
-    def lstm(dh, dc, input):
-        a = C.times(input, W) + B + dh + dc
-        ddh = dh + dc
-        return (a, ddh)
-
-    return C.BlockFunction("my_lstm", "my_name")(lstm)
-
-def LSTM_layer(input,
-               output_dim):
-    # we first create placeholders for the hidden state and cell state which we don't have yet
-    dh = C.placeholder(shape=(output_dim), dynamic_axes=input.dynamic_axes)
-    dc = C.placeholder(shape=(output_dim), dynamic_axes=input.dynamic_axes)
-
-    # we now create an LSTM_cell function and call it with the input and placeholders
-    #print ("output_dim ", output_dim, input.shape[0])
-    LSTM_cell = LSTM_func(input.shape[0],output_dim) # C.layers.LSTM(output_dim) #
-    #print ("output_dim ", output_dim, dh, dc, input.shape)
-    f_x_h_c = LSTM_cell(dh, dc, input)
-    #print ("output_dim ", output_dim, input.shape)
-    h_c = f_x_h_c.outputs
-
-    # we setup the recurrence by specifying the type of recurrence (by default it's `past_value` -- the previous value)
-    h = C.sequence.past_value(h_c[0])
-    c = C.sequence.past_value(h_c[1])
-
-    replacements = { dh: h.output, dc: c.output }
-    f_x_h_c.replace_placeholders(replacements)
-
-    h = f_x_h_c.outputs[0]
-    c = f_x_h_c.outputs[1]
-
-    # and finally we return the hidden state and cell state as functions (by using `combine`)
-    return C.combine([h]), C.combine([c])
-
-z_lin = linear_layer(feature, 80)
-#print(z_lin.shape[0])
-#(z_lin, m2, c1, c2) = GLSTM_layer(z_lin, 256)
-#(z_lin, output_c) = LSTM_layer(z_lin, 256)
+z_lin = C.layers.Dense(80)(feature)
 z_lin = freq_grid(z_lin, 256)
-z = linear_layer(z_lin, num_output_classes)
+
+z = C.layers.Sequential([C.layers.Recurrence(C.layers.LSTM(1024)),
+                        C.layers.Recurrence(C.layers.LSTM(1024)),
+                        C.layers.Recurrence(C.layers.LSTM(1024)),
+                        C.layers.Recurrence(C.layers.LSTM(1024))])(z_lin)
+
+z = C.layers.Dense(num_output_classes)(z_lin)
 
 label = C.sequence.input(num_output_classes, np.float32)
 loss = C.cross_entropy_with_softmax(z, label)

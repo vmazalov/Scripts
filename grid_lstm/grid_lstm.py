@@ -2,10 +2,7 @@ import cntk as C
 import numpy as np
 
 '''
-Implementation of GRID LSTM in CNTK based primarily on
-"Modeling Time-Frequency Patterns with LSTM vs. Convolutional Architectures for LVCSR Tasks"
-https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45401.pdf
-
+Implementation of GRID LSTM in CNTK
 '''
 C.device.try_set_default_device(C.device.gpu(0))
 
@@ -43,7 +40,6 @@ def freq_grid(input, output_dim, slice_size=10, slice_overlap=5):
         left_ind = left_ind + slice_overlap
         k_ind = k_ind + 1
 
-    print ("Aaa", C.combine([GLSTM_cell_list[0].outputs[0]]))
     result = C.splice(C.combine([GLSTM_cell_list[0].outputs[0]]), C.combine([GLSTM_cell_list[0].outputs[1]]))
     i = 0
     while i < k_ind:
