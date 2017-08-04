@@ -1,4 +1,5 @@
 import cntk as C
+import numpy as np
 
 '''
 Implementation of GRID LSTM in CNTK based primarily on
@@ -7,6 +8,53 @@ https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/
 
 '''
 C.device.try_set_default_device(C.device.gpu(0))
+
+def freq_grid(input, output_dim, slice_size=10, slice_overlap=5):
+    # slice the input vector along frequency
+    input_dim = input.shape[0]
+
+    right_ind = slice_size
+    # array with freq outputs at the prev time step
+    m_t_1_k_list = []
+    c_t_1_k_list = []
+
+    while (right_ind <= input_dim):
+        name1 = 'm_t_1_k' + str(right_ind)
+        m_t_1_k_list.append(C.placeholder(shape=(output_dim), dynamic_axes=input.dynamic_axes, name=name1))
+        name1 = 'c_t_1_k' + str(right_ind)
+        c_t_1_k_list.append(C.placeholder(shape=(output_dim), dynamic_axes=input.dynamic_axes, name=name1))
+        right_ind = right_ind + slice_overlap
+
+    left_ind = 0
+    right_ind = slice_size
+    k_ind = 0
+    GLSTM_cell_list = []
+    GLSTM_cell = grid_lstm_factory(slice_size, output_dim)
+    while (right_ind <= input_dim):
+        freq_slice = C.slice(input, 0, left_ind, right_ind)
+        if k_ind == 0:
+            f_x_h_c = GLSTM_cell(m_t_1_k_list[k_ind], C.Constant(0, (output_dim)), c_t_1_k_list[0], C.Constant(0, (output_dim)), freq_slice)
+        else:
+            f_x_h_c = GLSTM_cell(m_t_1_k_list[k_ind], GLSTM_cell_list[k_ind-1].outputs[1], c_t_1_k_list[k_ind], GLSTM_cell_list[k_ind-1].outputs[3], freq_slice)
+
+        GLSTM_cell_list.append(f_x_h_c)
+
+        right_ind = right_ind + slice_overlap
+        left_ind = left_ind + slice_overlap
+        k_ind = k_ind + 1
+
+    print ("Aaa", C.combine([GLSTM_cell_list[0].outputs[0]]))
+    result = C.splice(C.combine([GLSTM_cell_list[0].outputs[0]]), C.combine([GLSTM_cell_list[0].outputs[1]]))
+    i = 0
+    while i < k_ind:
+        replacements = {m_t_1_k_list[i] : C.sequence.past_value(GLSTM_cell_list[i].outputs[0]).output, c_t_1_k_list[i] : C.sequence.past_value(GLSTM_cell_list[i].outputs[2]).output}
+        GLSTM_cell_list[i].replace_placeholders(replacements)
+        result = C.splice(result, C.combine([GLSTM_cell_list[i].outputs[0]]), C.combine([GLSTM_cell_list[i].outputs[1]]))
+        i = i + 1
+
+    assert((right_ind - slice_overlap) == input_dim)
+
+    return result
 
 def GLSTM_layer(input, output_dim):
     input_dim=input.shape[0]

@@ -103,8 +103,9 @@ def LSTM_layer(input,
 
 z_lin = linear_layer(feature, 80)
 #print(z_lin.shape[0])
-(z_lin, m2, c1, c2) = GLSTM_layer(z_lin, 256)
+#(z_lin, m2, c1, c2) = GLSTM_layer(z_lin, 256)
 #(z_lin, output_c) = LSTM_layer(z_lin, 256)
+z_lin = freq_grid(z_lin, 256)
 z = linear_layer(z_lin, num_output_classes)
 
 label = C.sequence.input(num_output_classes, np.float32)
