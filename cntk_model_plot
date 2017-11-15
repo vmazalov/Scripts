@@ -1,7 +1,7 @@
 '''
 Ensure that GraphViz is installed and it's executable is int the path
 '''
-import cnkt
+import cntk
 from cntk import load_model
 from cntk.logging.graph import plot
 
