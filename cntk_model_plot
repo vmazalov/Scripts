@@ -1,0 +1,9 @@
+'''
+Ensure that GraphViz is installed and it's executable is int the path
+'''
+import cnkt
+from cntk import load_model
+from cntk.logging.graph import plot
+
+m = load_model("model.path")
+plot(m,"model.pdf")
