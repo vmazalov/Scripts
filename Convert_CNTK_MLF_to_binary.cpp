@@ -1,6 +1,7 @@
 
 #include "stdafx.h"
 
+
 #include <fstream>
 #include <string>
 #include <iostream>
@@ -147,4 +148,6 @@ int main(int argc, char * argv[])
 
     cout << "Finished." << endl;
 }
+
+
 
