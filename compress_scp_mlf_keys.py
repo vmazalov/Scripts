@@ -56,6 +56,7 @@ def adaptMlf(mlfFile, output, keys):
                         outputFile.write(line)
                     else:
                         outputFile.write(originalLine)
+                        print("Unknown MLF key '%s'" % line)
                 else:
                     outputFile.write(originalLine)
                 previous = line.strip()
