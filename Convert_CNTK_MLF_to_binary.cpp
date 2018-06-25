@@ -98,9 +98,9 @@ int main(int argc, char * argv[])
             first = true;
         }
         else if (sp.size() == 1 && sp[0] != ".") {
-            ushort seqSize = (ushort)sequence.size();
-            assert(seqSize % 2 == 0);
-            seqSize /= 2;
+            assert(sequence.size() % 2 == 0);
+            ushort seqSize = (ushort)(sequence.size()/2);
+
             if (seqSize == 0)
             {
                 if (!first) {
@@ -149,9 +149,8 @@ int main(int argc, char * argv[])
         }
     }
     // Write the last entry
-    ushort seqSize = (ushort)sequence.size();
-    assert(seqSize % 2 == 0);
-    seqSize /= 2;
+    assert(sequence.size() % 2 == 0);
+    ushort seqSize = (ushort)(sequence.size()/2);
     outFile.write((char*)&senEnd, sizeof(uint));
     outFile.write((char*)&seqSize, sizeof(ushort));
     outFile.write((char*)sequence.data(), sizeof(ushort) * sequence.size());
