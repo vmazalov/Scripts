@@ -1,8 +1,10 @@
 import cntk
 import sys
+import numpy as np
+from cntk import load_model, combine
 
-model_file = r'original.model'
-new_model_file = r'fixed.model'
+model_file = r'model.in'
+new_model_file = r'model.in.fixed'
 model = cntk.Function.load(model_file)
 
 def clone_parameter_removing_leading_unit_axes(param):
@@ -33,3 +35,13 @@ for filtered_param in filtered_params:
 	
 new_model = model.clone('clone', param_replacements)
 new_model.save(new_model_file)
+input = []
+for i in range(80):
+	input.append(np.float32(0.0))
+
+node_in_graph = new_model.find_by_name("outputNode")
+output_nodes  = combine([node_in_graph.owner])
+output = output_nodes.eval(np.array(input))
+print("Ouput................................")
+for a in output:
+	print(a)
